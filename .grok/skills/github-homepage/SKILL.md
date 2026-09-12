@@ -31,10 +31,11 @@ Maintain Wyatt Curtis’s **public** GitHub Pages site.
 
 1. Resume
 2. GitHub repos (public inventory table)
-3. semantic-layer-docs
-4. pricing-scenarios
-5. nfl-ats
-6. nfl-clv-ledger
+3. mortgage-capital-markets-analytics
+4. semantic-layer-docs
+5. pricing-scenarios
+6. nfl-ats
+7. nfl-clv-ledger
 
 Add a tab only for a **public** repo the user names. Remove a tab if that repo is deleted or made private.
 

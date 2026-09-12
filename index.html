@@ -220,6 +220,7 @@
     <div class="tabs" role="tablist" aria-label="Sections">
       <button role="tab" id="tab-resume" aria-controls="panel-resume" aria-selected="true" data-tab="resume">Resume</button>
       <button role="tab" id="tab-github" aria-controls="panel-github" aria-selected="false" data-tab="github">GitHub repos</button>
+      <button role="tab" id="tab-mcma" aria-controls="panel-mcma" aria-selected="false" data-tab="mcma">mortgage-capital-markets-analytics</button>
       <button role="tab" id="tab-semantic" aria-controls="panel-semantic" aria-selected="false" data-tab="semantic">semantic-layer-docs</button>
       <button role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" data-tab="pricing">pricing-scenarios</button>
       <button role="tab" id="tab-nflats" aria-controls="panel-nflats" aria-selected="false" data-tab="nflats">nfl-ats</button>
@@ -324,6 +325,11 @@
               <td><a href="https://wyattcurtis327.github.io/Homepage/">live page</a></td>
             </tr>
             <tr>
+              <td><a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics">mortgage-capital-markets-analytics</a></td>
+              <td>Capital markets analytics for mortgage origination: KPI SQL, pull-through forecast, daily P&amp;L attribution, incremental Databricks jobs, and a 15-minute desk agent</td>
+              <td><a href="#mcma-what">mortgage-capital-markets-analytics</a></td>
+            </tr>
+            <tr>
               <td><a href="https://github.com/WyattCurtis327/semantic-layer-docs">semantic-layer-docs</a></td>
               <td>Grok skill: Unity Catalog Metric Views → Markdown + HTML + PDF business guides</td>
               <td><a href="#sem-what">semantic-layer-docs</a></td>
@@ -346,6 +352,98 @@
           </tbody>
         </table>
         <p class="note">Public MIT-licensed work only. Private repos are not listed. Use the tabs above for the full write-up.</p>
+      </section>
+
+      <section class="panel" id="panel-mcma" role="tabpanel" aria-labelledby="tab-mcma" hidden data-tab="mcma">
+        <h2 id="mcma-what">What it is</h2>
+        <p><a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics">WyattCurtis327/mortgage-capital-markets-analytics</a> is a public open pack for a <b>fintech / nonbank mortgage capital markets desk</b> that originates to sell. MIT license.</p>
+        <p>It covers how capital markets sits inside origination (pricing, lock, hedge, warehouse, best ex, sale); desk KPIs and the formulas behind them; Databricks SQL for pull-through, daily position, gain-on-sale, and P&amp;L attribution; an incremental nightly job that MERGEs a <code>lock_id × as_of_date</code> snapshot; and how an AI agent can run <b>decisioning</b> analytics on a pipeline that refreshes about every 15 minutes.</p>
+        <p>This is a reference implementation, not a trading system. It does not connect to a live LOS, TBA desk, or warehouse bank.</p>
+        <p><b>Price convention:</b> points (<code>100</code> = par). Dollars = <code>UPB × points / 100</code>. Basis points = <code>points × 100</code>. Full glossary: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/glossary.md"><code>docs/glossary.md</code></a>.</p>
+
+        <h2 id="mcma-why">Why capital markets sits inside origination</h2>
+        <p>Origination manufactures the loan. Capital markets makes it <b>fundable, hedgeable, and saleable</b>. The economic clock starts at <b>rate lock</b>, not at closing. When the borrower locks, the company is long a fixed-rate mortgage that does not yet exist. If market prices fall before sale, that lock is worth less. The desk:</p>
+        <ul>
+          <li>Feeds the product / pricing / eligibility (PPE) engine from TBA and investor bids.</li>
+          <li>Hedges the lock pipeline, usually by shorting TBA MBS, sized to <b>pull-through-weighted</b> exposure.</li>
+          <li>Arranges warehouse lines so closing can fund.</li>
+          <li>Runs best execution and delivers the loan.</li>
+          <li>Marks and optionally hedges MSRs if servicing is retained.</li>
+        </ul>
+        <p>Without that loop, origination quotes rates the secondary market will not pay and closes loans the balance sheet cannot carry.</p>
+
+        <h2 id="mcma-map">Repository map</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>docs/glossary.md</code></td><td>Full glossary</td></tr>
+            <tr><td><code>docs/kpis-and-calculations.md</code></td><td>Worked KPI math</td></tr>
+            <tr><td><code>docs/agent-15min.md</code></td><td>15-minute agent architecture</td></tr>
+            <tr><td><code>sql/01_origination_kpis.sql</code></td><td>Gold views: lock as-of, position, L2F, GOS</td></tr>
+            <tr><td><code>sql/02_pullthrough_forecast.sql</code></td><td>Session A — PT grid + beta + live join</td></tr>
+            <tr><td><code>sql/03_pnl_attribution.sql</code></td><td>Session B — daily P&amp;L waterfall</td></tr>
+            <tr><td><code>sql/04_daily_merge_job.sql</code></td><td>Session C — incremental MERGE + gates</td></tr>
+            <tr><td><code>databricks/metric_views.yaml</code></td><td>Unity Catalog metric views</td></tr>
+            <tr><td><code>databricks/daily_snapshot_job.py</code></td><td>Notebook wrapper (widgets, PT refresh, fail-on-gate)</td></tr>
+            <tr><td><code>databricks/workflow.yaml</code></td><td>Suggested 3-task Databricks job</td></tr>
+          </tbody>
+        </table>
+        <p>Dialect is <b>Databricks SQL</b> (<code>QUALIFY</code>, <code>FILTER</code>, <code>DATE_TRUNC</code>).</p>
+
+        <h2 id="mcma-grains">Data grains</h2>
+        <table>
+          <thead><tr><th>Object</th><th>Grain</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr><td><code>gold_lock_risk_daily</code></td><td><code>lock_id × as_of_date</code></td><td>Live PTWLV, econ, MTM, DV01</td></tr>
+            <tr><td><code>gold_cm_daily_position_tbl</code></td><td><code>as_of_date</code></td><td>Coverage, net MTM, policy</td></tr>
+            <tr><td><code>gold_vintage_l2f</code></td><td>lock month × channel × product × purpose</td><td>Realized PT to retrain the grid</td></tr>
+            <tr><td><code>gold_loan_gos</code></td><td>sold <code>loan_id</code></td><td>Realized GOS and slippage</td></tr>
+            <tr><td><code>gold_pnl_attribution_daily</code></td><td><code>as_of_date</code></td><td>Why the book moved</td></tr>
+            <tr><td>Intra-day <code>gold_cm_position_15m</code></td><td><code>print_ts</code></td><td>Agent Watcher</td></tr>
+          </tbody>
+        </table>
+        <p>Point-in-time measures (PTWLV, coverage) are <b>not</b> additive across dates. One value definition is used everywhere:</p>
+        <pre>econ_usd = UPB × PT × (P_now − P_buy) / 100</pre>
+        <p>Open locks use forecast PT. Funded held-for-sale uses <code>PT = 1</code>. Fallen-out and sold loans leave the snapshot.</p>
+
+        <h2 id="mcma-deploy">Deploy order</h2>
+        <ol>
+          <li><b>A — Pull-through forecast</b> (<code>sql/02_pullthrough_forecast.sql</code>). Empirical PT by status × channel × purpose × product × ITM bucket, shrunk toward a parent when the cell is thin (<code>k = 40</code>), plus a channel beta on price move. Price move <code>P_now − P_lock &gt; 0</code> means the market rallied and the lock is OTM for the borrower — PT should fall; beta is <b>negative</b>. Rebuild the grid nightly from resolved vintages, not the live open book.</li>
+          <li><b>B — Daily P&amp;L attribution</b> (<code>sql/03_pnl_attribution.sql</code>). Splits Δecon into new locks, fallout, fund PT step-up, market, PT revision, renegotiation, UPB change, residual. Hedge P&amp;L is open TBA mark change plus pair-off cash that day. Offset = <code>−hedge_pnl / (market + pt_revision)</code>. Do not put new locks, fallout, or renego in the denominator.</li>
+          <li><b>C — Incremental snapshot</b> (<code>sql/04_daily_merge_job.sql</code>). Restate the last <code>restate_days</code> (default 5) with MERGE + <code>WHEN NOT MATCHED BY SOURCE</code> delete. Freeze older partitions, including the PT used that day. Quality gates fail the job on zero rows, bad UPB/PT, default-PT share &gt; 20%, PTWLV shock &gt; 35%. Coverage outside 70–120% is a <b>WARN</b>.</li>
+        </ol>
+        <p><b>15-minute agent</b> (<code>docs/agent-15min.md</code>): Watcher every print or TBA jump → Analyst on WARN/FAIL → Reporter desk card. Last night’s PT grid is a prior. The agent drafts tickets (<code>auto_execute: false</code>). It does not refit the model at 10:15 and it does not send TBA orders.</p>
+
+        <h2 id="mcma-metrics">Metric cheat sheet</h2>
+        <table>
+          <thead><tr><th>Metric</th><th>Formula</th></tr></thead>
+          <tbody>
+            <tr><td>PT volume</td><td>funded UPB / locked UPB</td></tr>
+            <tr><td>PTWLV</td><td>Σ UPB × PT̂</td></tr>
+            <tr><td>Locked margin</td><td>P_lock_net − P_buy</td></tr>
+            <tr><td>Econ USD</td><td>UPB × PT × (P_now − P_buy) / 100</td></tr>
+            <tr><td>Pipeline MTM</td><td>UPB × PT × (P_now − P_lock) / 100</td></tr>
+            <tr><td>DV01</td><td>PTW UPB × EffDur / 10000</td></tr>
+            <tr><td>PT coverage</td><td>TBA short / (PTWLV + HFS)</td></tr>
+            <tr><td>Duration coverage</td><td>hedge DV01 / pipeline DV01</td></tr>
+            <tr><td>GOS bps</td><td>GOS $ / sold UPB × 10,000</td></tr>
+            <tr><td>Offset</td><td>−hedge P&amp;L / (market + PT revision)</td></tr>
+          </tbody>
+        </table>
+        <p>Unity Catalog metric views in <code>databricks/metric_views.yaml</code>: <code>cm_loan_economics</code> (sold-loan grain), <code>cm_daily_position</code> (date grain), <code>cm_daily_attribution</code> (date grain). Do not union those grains.</p>
+
+        <h2 id="mcma-inputs">Assumed silver inputs</h2>
+        <p>Map these from your LOS / secondary / warehouse systems before the gold views will run.</p>
+        <ul>
+          <li><code>fact_rate_lock</code> — one row per IRLC</li>
+          <li><code>fact_lock_status_hist</code> — status through time</li>
+          <li><code>fact_lock_event</code> — renegotiate, extend, fallout, fund</li>
+          <li><code>fact_funded_loan</code>, <code>fact_loan_sale</code>, <code>fact_warehouse_draw</code></li>
+          <li><code>fact_hedge_trade</code> — TBA lots, side, pair-off</li>
+          <li><code>fact_best_ex_quote</code></li>
+          <li><code>ref_tba_market</code> — daily (and optionally 15-min) marks + effective duration</li>
+        </ul>
+        <p class="warn">Formulas and SQL are illustrative. Hedge ratios, PT grids, LLPAs, warehouse terms, and investor bids are firm-specific. Do not use this repository as the sole input to a live trade, rate sheet, or warehouse draw.</p>
       </section>
 
       <section class="panel" id="panel-semantic" role="tabpanel" aria-labelledby="tab-semantic" hidden data-tab="semantic">
@@ -585,6 +683,15 @@ jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
       github: [
         ["gh-overview", "Overview"],
         ["gh-public", "Public repos"]
+      ],
+      mcma: [
+        ["mcma-what", "What it is"],
+        ["mcma-why", "Why capital markets"],
+        ["mcma-map", "Repository map"],
+        ["mcma-grains", "Data grains"],
+        ["mcma-deploy", "Deploy order"],
+        ["mcma-metrics", "Metric cheat sheet"],
+        ["mcma-inputs", "Silver inputs"]
       ],
       semantic: [
         ["sem-what", "What it is"],
