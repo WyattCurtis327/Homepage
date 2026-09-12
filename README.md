@@ -6,6 +6,8 @@ Public GitHub Pages site for Wyatt Curtis: resume plus public GitHub work.
 
 The page is a single `index.html` (tabs + table of contents). Private repositories are not listed.
 
+**Resume source:** edit `resume.md` in this repo (mirrored at `~/Documents/resume.md`). The homepage skill rebuilds the Resume tab from that file.
+
 ## Maintain
 
 Use Grok skill **github-homepage** (`/github-homepage` or `/github_homepage`).

@@ -221,6 +221,7 @@
       <button role="tab" id="tab-resume" aria-controls="panel-resume" aria-selected="true" data-tab="resume">Resume</button>
       <button role="tab" id="tab-github" aria-controls="panel-github" aria-selected="false" data-tab="github">GitHub repos</button>
       <button role="tab" id="tab-semantic" aria-controls="panel-semantic" aria-selected="false" data-tab="semantic">semantic-layer-docs</button>
+      <button role="tab" id="tab-pricing" aria-controls="panel-pricing" aria-selected="false" data-tab="pricing">pricing-scenarios</button>
       <button role="tab" id="tab-nflats" aria-controls="panel-nflats" aria-selected="false" data-tab="nflats">nfl-ats</button>
       <button role="tab" id="tab-clv" aria-controls="panel-clv" aria-selected="false" data-tab="clv">nfl-clv-ledger</button>
     </div>
@@ -304,7 +305,7 @@
         <h2 id="resume-additional">Additional information</h2>
         <p>U.S. Army Veteran</p>
 
-        <p class="source">Resume source: Google Drive file <em>Wyatt Curtis Resume Updated.pdf</em> (modified 2026-08-22).</p>
+        <p class="source">Resume source: editable <code>resume.md</code> in this repo (also <code>Documents\resume.md</code>).</p>
       </section>
 
       <section class="panel" id="panel-github" role="tabpanel" aria-labelledby="tab-github" hidden data-tab="github">
@@ -326,6 +327,11 @@
               <td><a href="https://github.com/WyattCurtis327/semantic-layer-docs">semantic-layer-docs</a></td>
               <td>Grok skill: Unity Catalog Metric Views → Markdown + HTML + PDF business guides</td>
               <td><a href="#sem-what">semantic-layer-docs</a></td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/WyattCurtis327/pricing-scenarios">pricing-scenarios</a></td>
+              <td>Mortgage pricing notebook: rate sheet + scenario rows → par rates</td>
+              <td><a href="#ps-what">pricing-scenarios</a></td>
             </tr>
             <tr>
               <td><a href="https://github.com/WyattCurtis327/nfl-ats">nfl-ats</a></td>
@@ -507,6 +513,61 @@ nfl-clv export --week 1 -o week1.csv</pre>
         <pre>no_vig_clv_pp = 100 × (close_no_vig_prob − bet_no_vig_prob)</pre>
         <p>Positive means you bought cheaper no-vig probability than the fair close. Process ≠ profitability; never conflate CLV with ATS W-L.</p>
       </section>
+
+      <section class="panel" id="panel-pricing" role="tabpanel" aria-labelledby="tab-pricing" hidden data-tab="pricing">
+        <h2 id="ps-what">What it is</h2>
+        <p><a href="https://github.com/WyattCurtis327/pricing-scenarios">WyattCurtis327/pricing-scenarios</a> prices a slate of hypothetical mortgage loans against a <b>daily rate sheet</b>. You describe each scenario (program, product, lock period, amount, FICO, LTV, purpose). The notebook looks up every applicable price adjustment, stacks them onto the lock-period price, then solves for the <b>par rate</b> (the note rate where price adjustment ≈ 0).</p>
+        <p>This is a workflow, not a live lock desk. Drop in a rate-sheet workbook, run the notebook, get a results CSV. No Databricks, no API keys. MIT license. Live rate sheets stay out of git.</p>
+
+        <h2 id="ps-need">What you need</h2>
+        <table>
+          <thead><tr><th>Item</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td>Rate-sheet workbook (<code>.xlsx</code>)</td><td>One day’s programs, prices, and adjustment grids</td></tr>
+            <tr><td>Scenario rows</td><td>Loans you want priced (<code>Scenarios</code> sheet)</td></tr>
+            <tr><td>Notebook</td><td><code>notebooks/pricing_scenarios.ipynb</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="ps-sheets">Workbook sheets</h2>
+        <table>
+          <thead><tr><th>Sheet</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>Scenarios</code></td><td>Input loans: program, product, lock, amount, FICO, LTV, purpose</td></tr>
+            <tr><td><code>Products</code></td><td>Flags: high-balance, LPMI, term &gt; 15 years</td></tr>
+            <tr><td><code>Loan Amt Adj</code> / <code>FICO Adj</code> / <code>High Bal Adj</code></td><td>Banded price adjustments</td></tr>
+            <tr><td><code>Loan Level Adj</code></td><td>LTV/FICO grids for long terms and cash-out</td></tr>
+            <tr><td><code>Pricing Special</code></td><td>Promotional adj</td></tr>
+            <tr><td><code>LPMI Terms</code> / <code>LPMI All Terms</code></td><td>Lender-paid MI components</td></tr>
+            <tr><td><code>RateSheet</code></td><td>Note rate × lock window (15 / 30 / 45 / 60 day)</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="ps-flow">Workflow</h2>
+        <ol>
+          <li>Drop today’s workbook in <code>./data/</code>.</li>
+          <li>Set <code>fileName</code> in the notebook (or rename to match).</li>
+          <li>Run all cells.</li>
+          <li>Read <code>{date}_Pricing Scenarios_Results.csv</code>.</li>
+        </ol>
+        <p>For each scenario the notebook flags the product, sums every matching adjustment (<code>ADJ_TOT</code>), melts lock-period prices, adds the stack to the curve, then solves par:</p>
+        <ul>
+          <li>If the adjusted curve straddles par, interpolate the two neighboring points linearly (<code>lineRATE</code>).</li>
+          <li>Otherwise fit <code>price ~ a * ln(rate) + b</code> and <code>fsolve</code> for price = 0 (<code>logRATE</code>).</li>
+        </ul>
+        <pre>ADJ_TOT = ADJ_LoanAmt + ADJ_FICO + ADJ_HIGH_BAL
+        + ADJ_GT_15 + ADJ_COR + ADJ_PRICE_SPECIAL
+        + ADJ_LPMI_TERMS + ADJ_LPMI_AMORT_LTE_25 + ADJ_LPMI_COR
+adjusted_price = rate_sheet_price(lock) + ADJ_TOT
+par rate       = rate where adjusted_price ≈ 0</pre>
+
+        <h2 id="ps-run">Run</h2>
+        <pre>python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
+        <p><code>PRICING_SCENARIOS_DIR</code> defaults to <code>./data/</code>. Do not commit <code>.xlsx</code> or result CSVs.</p>
+      </section>
     </main>
   </div>
 
@@ -536,6 +597,13 @@ nfl-clv export --week 1 -o week1.csv</pre>
         ["sem-layout", "Layout"],
         ["sem-example", "Example chapters"],
         ["sem-brand", "Branding"]
+      ],
+      pricing: [
+        ["ps-what", "What it is"],
+        ["ps-need", "What you need"],
+        ["ps-sheets", "Workbook sheets"],
+        ["ps-flow", "Workflow"],
+        ["ps-run", "Run"]
       ],
       nflats: [
         ["ats-what", "What it is"],
