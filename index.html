@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wyatt Curtis — Resume &amp; work</title>
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --navy-dark: #13263f;
+      --ink: #1a1f2b;
+      --muted: #5b6578;
+      --line: #d7deea;
+      --paper: #f7f5f1;
+      --card: #ffffff;
+      --accent: #2f6fed;
+      --ok: #0f7a4a;
+      --warn: #8a5a00;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Calibri, system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+    }
+    a { color: var(--accent); }
+    .skip {
+      position: absolute; left: -999px;
+    }
+    .skip:focus { left: 12px; top: 12px; background: #fff; padding: 8px; z-index: 20; }
+    header.top {
+      background: var(--navy-dark);
+      color: #fff;
+      padding: 22px 28px 0;
+    }
+    header.top h1 {
+      margin: 0;
+      font-size: 1.85rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+    .contact {
+      margin: 6px 0 16px;
+      color: #c9d4e6;
+      font-size: 0.95rem;
+    }
+    .contact a { color: #dce7ff; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .tabs button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #c9d4e6;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 10px 10px 0 0;
+    }
+    .tabs button[aria-selected="true"] {
+      background: var(--paper);
+      color: var(--navy);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 0;
+      max-width: 1180px;
+      margin: 0 auto;
+      min-height: calc(100vh - 140px);
+    }
+    nav.toc {
+      padding: 22px 18px 40px 22px;
+      border-right: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+    }
+    nav.toc h2 {
+      margin: 0 0 10px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    nav.toc ol {
+      margin: 0;
+      padding: 0 0 0 18px;
+    }
+    nav.toc li { margin: 6px 0; }
+    nav.toc a {
+      color: var(--navy);
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+    nav.toc a:hover { text-decoration: underline; }
+    main {
+      padding: 28px 32px 64px;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .panel h2 {
+      color: var(--navy);
+      border-bottom: 2px solid var(--navy);
+      padding-bottom: 6px;
+      margin-top: 1.6rem;
+      font-size: 1.15rem;
+      letter-spacing: 0.03em;
+    }
+    .panel h2:first-child { margin-top: 0; }
+    .panel h3 {
+      margin-bottom: 0.2rem;
+      font-size: 1.05rem;
+    }
+    .job-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .org { color: var(--muted); font-style: italic; margin: 0 0 8px; }
+    .dates { color: var(--muted); font-weight: 600; }
+    ul { padding-left: 1.2rem; }
+    .skill { margin: 0.45rem 0; }
+    .skill b { color: var(--navy); }
+    .note {
+      background: #eef3fb;
+      border-left: 4px solid var(--navy);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+    }
+    .warn {
+      background: #fff6e8;
+      border-left: 4px solid var(--warn);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      font-size: 0.92rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #edf2f8; color: var(--navy); }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #e8eef7;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+    .badge.public { background: #e5f6ec; color: var(--ok); }
+    .badge.archived { background: #f4efe6; color: var(--warn); }
+    .badge.fork { background: #eee8f8; color: #5b2d8f; }
+    pre {
+      background: var(--navy-dark);
+      color: #e8eef7;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      overflow: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .source {
+      margin-top: 2.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      nav.toc {
+        position: static;
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      main { padding: 20px 16px 48px; }
+    }
+    @media print {
+      header.top .tabs, nav.toc { display: none !important; }
+      .layout { display: block; }
+      .panel { display: none !important; }
+      .panel.active { display: block !important; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="top">
+    <h1>Wyatt Curtis</h1>
+    <p class="contact">
+      <a href="tel:7149267289">714-926-7289</a>
+      &nbsp;|&nbsp;
+      <a href="mailto:wyatt.curtis@gmail.com">wyatt.curtis@gmail.com</a>
+      &nbsp;|&nbsp;
+      <a href="https://github.com/WyattCurtis327">github.com/WyattCurtis327</a>
+    </p>
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-resume" aria-controls="panel-resume" aria-selected="true" data-tab="resume">Resume</button>
+      <button role="tab" id="tab-github" aria-controls="panel-github" aria-selected="false" data-tab="github">GitHub repos</button>
+      <button role="tab" id="tab-semantic" aria-controls="panel-semantic" aria-selected="false" data-tab="semantic">semantic-layer-docs</button>
+      <button role="tab" id="tab-nflats" aria-controls="panel-nflats" aria-selected="false" data-tab="nflats">nfl-ats</button>
+      <button role="tab" id="tab-clv" aria-controls="panel-clv" aria-selected="false" data-tab="clv">nfl-clv-ledger</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol id="toc-list"></ol>
+    </nav>
+
+    <main id="content">
+      <section class="panel active" id="panel-resume" role="tabpanel" aria-labelledby="tab-resume" data-tab="resume">
+        <h2 id="resume-summary">Professional summary</h2>
+        <p>Results-driven analytics and data engineering leader with 20+ years of experience in business intelligence, marketing analytics, and modern data platforms. Proven track record building governed lakehouse architectures on Databricks, designing Metric Views with Unity Catalog, and developing AI-powered agent skills for forecasting, root-cause analysis, and decision support. Strong background in analytics, visualizations, and cross-functional data product delivery in the financial services and consumer industries.</p>
+
+        <h2 id="resume-skills">Technical skills</h2>
+        <p class="skill"><b>Data platforms &amp; lakehouse:</b> Databricks (Unity Catalog, Metric Views, Genie, Lakehouse), Spark, Delta Lake, Google BigQuery, SQL Server, MySQL, Netezza, Oracle, DB2</p>
+        <p class="skill"><b>AI &amp; agent skills:</b> Custom Databricks Agent Skills, Genie Spaces, LLM-based forecasting (Prophet, ARIMA, transformers), MCP integrations, VS Code + Databricks AI tooling</p>
+        <p class="skill"><b>Analytics &amp; modeling:</b> SQL (advanced WINDOW functions, CTEs), dbt, Data Vault 2.0, time-series forecasting, Monte Carlo simulation, A/B testing, statistical modeling, Python, R</p>
+        <p class="skill"><b>BI &amp; visualization:</b> Tableau, Adobe Analytics, Business Objects, Power BI concepts, executive KPI dashboards</p>
+        <p class="skill"><b>Other:</b> Data modeling, ETL/ELT pipelines, governance (RLS/ABAC), Git/GitHub workflows, MS Office Suite</p>
+
+        <h2 id="resume-experience">Professional experience</h2>
+
+        <div class="job-meta">
+          <h3 id="resume-loandepot">Manager, Business Intelligence</h3>
+          <div class="dates">5/2017 – Present</div>
+        </div>
+        <p class="org">loanDepot</p>
+        <ul>
+          <li>Lead marketing analytics and data engineering initiatives supporting digital marketing campaign performance, lead intake forecasting, and lead-to-funding funnel optimization.</li>
+          <li>Architect and govern analytics on Databricks lakehouse using Unity Catalog, Metric Views (including LOD expressions, semi-additive measures, and time intelligence), and secure access controls (RLS/ABAC).</li>
+          <li>Design and deploy custom Agent Skills and Genie spaces that enable self-serve forecasting, hierarchical root-cause analysis, and natural-language exploration of marketing and underwriting metrics.</li>
+          <li>Unify top-of-funnel ad metrics (Google, Bing, Meta) with underwriting systems and contact-center data to create persistent Lead ID event streams and reliable conversion analytics.</li>
+          <li>Partner with cross-functional teams to implement data-centric workflows, A/B testing frameworks, and media buy planning driven by time-series and Monte Carlo forecasting models.</li>
+        </ul>
+
+        <div class="job-meta">
+          <h3 id="resume-oakley">CRM Data Analyst</h3>
+          <div class="dates">5/2015 – 5/2017</div>
+        </div>
+        <p class="org">Oakley</p>
+        <ul>
+          <li>Designed and implemented data models supporting digital marketing campaigns and email response KPIs (SQL, Netezza, Python, Google BigQuery).</li>
+          <li>Partnered with Ecommerce and retail stakeholders to build CRM infrastructure and deliver ongoing ad-hoc and standardized analysis.</li>
+        </ul>
+
+        <div class="job-meta">
+          <h3 id="resume-guthy">Business Analyst Consultant</h3>
+          <div class="dates">8/2014 – 5/2015</div>
+        </div>
+        <p class="org">Guthy-Renker</p>
+        <ul>
+          <li>Captured requirements for cloud-based ecommerce fulfillment system; maintained user matrix (Python) and developed operational SQL queries (MS SQL Server).</li>
+        </ul>
+
+        <div class="job-meta">
+          <h3 id="resume-cleveland">Manager of Business Analytics</h3>
+          <div class="dates">1/2011 – 8/2014</div>
+        </div>
+        <p class="org">Cleveland Golf / Srixon</p>
+        <ul>
+          <li>Supported Sales &amp; Marketing with customer segmentation, campaign execution, territory optimization, and S&amp;OP process administration and reporting.</li>
+          <li>Acquired, stored, and analyzed sell-through metrics from third-party sources on MySQL and Google BigQuery; trained and supervised sales analysts.</li>
+        </ul>
+
+        <div class="job-meta">
+          <h3 id="resume-ameriquest">Reporting Manager</h3>
+          <div class="dates">9/2002 – 1/2011</div>
+        </div>
+        <p class="org">Ameriquest Mortgage Company</p>
+        <ul>
+          <li>Drove development of executive KPI reports and dashboards (Business Objects, Crystal Reports); created mortgage lead scoring algorithm using logistic regression.</li>
+          <li>Collaborated with data warehouse team on data modeling requirements and report design.</li>
+        </ul>
+
+        <h2 id="resume-education">Education</h2>
+        <p><b>Chapman University</b> — Bachelor of Science, Business Administration</p>
+
+        <h2 id="resume-additional">Additional information</h2>
+        <p>U.S. Army Veteran</p>
+
+        <p class="source">Resume source: Google Drive file <em>Wyatt Curtis Resume Updated.pdf</em> (modified 2026-08-22).</p>
+      </section>
+
+      <section class="panel" id="panel-github" role="tabpanel" aria-labelledby="tab-github" hidden data-tab="github">
+        <h2 id="gh-overview">Overview</h2>
+        <p>Public repositories on <a href="https://github.com/WyattCurtis327">github.com/WyattCurtis327</a>. Private repos are omitted from this page.</p>
+
+        <h2 id="gh-public">Public repos</h2>
+        <table>
+          <thead>
+            <tr><th>Repo</th><th>What it is</th><th>Tab</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://github.com/WyattCurtis327/Homepage">Homepage</a></td>
+              <td>This site — resume and public work on GitHub Pages</td>
+              <td><a href="https://wyattcurtis327.github.io/Homepage/">live page</a></td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/WyattCurtis327/semantic-layer-docs">semantic-layer-docs</a></td>
+              <td>Grok skill: Unity Catalog Metric Views → Markdown + HTML + PDF business guides</td>
+              <td><a href="#sem-what">semantic-layer-docs</a></td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/WyattCurtis327/nfl-ats">nfl-ats</a></td>
+              <td>Portable Odds API ATS week card CLI (Tue card, Fri refresh, grade)</td>
+              <td><a href="#ats-what">nfl-ats</a></td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/WyattCurtis327/nfl-clv-ledger">nfl-clv-ledger</a></td>
+              <td>Open / bet / close ledger; no-vig CLV graded separately from ATS W-L</td>
+              <td><a href="#clv-what">nfl-clv-ledger</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">Public MIT-licensed work only. Private repos are not listed. Use the tabs above for the full write-up.</p>
+      </section>
+
+      <section class="panel" id="panel-semantic" role="tabpanel" aria-labelledby="tab-semantic" hidden data-tab="semantic">
+        <h2 id="sem-what">What it is</h2>
+        <p><a href="https://github.com/WyattCurtis327/semantic-layer-docs">WyattCurtis327/semantic-layer-docs</a> is a public Grok/Cursor <b>skill</b> that turns Databricks semantic-layer definitions (Unity Catalog <b>Metric Views</b>) into business-user documentation: Markdown + standalone HTML + PDF.</p>
+        <p>Governed metrics often stop at YAML and SQL that only data teams read. This pipeline closes that last mile with clear, scannable guides any analyst or executive can use.</p>
+
+        <h2 id="sem-artifacts">What you get</h2>
+        <table>
+          <thead><tr><th>Artifact</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>.md</code></td><td>Source of truth (edit here)</td></tr>
+            <tr><td><code>.html</code></td><td>Standalone guide with sticky TOC and brand accents</td></tr>
+            <tr><td><code>.pdf</code></td><td>Print-ready export</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="sem-why">Why</h2>
+        <ul>
+          <li>Semantic layers fail at the last mile if the only docs are for engineers.</li>
+          <li>One template per metric: <b>What it measures</b> → <b>How you can use it</b> → <b>Example question</b>.</li>
+          <li>Fixed chapter order (Open Group-style). TOC must match H2s. Every chapter gets an Overview.</li>
+          <li>Validate like CI: reject raw <code>SELECT</code> / YAML / <code>expr:</code> in the business guide.</li>
+          <li>Parsers draft; humans own meaning — business owners validate definitions before publish.</li>
+        </ul>
+
+        <h2 id="sem-workflow">Workflow</h2>
+        <ol>
+          <li><b>Parse</b> Metric View YAML → draft Markdown skeleton</li>
+          <li><b>Polish</b> tone (benefit-first, “you” language)</li>
+          <li><b>Validate</b> with <code>validate_guide.py</code></li>
+          <li><b>Build</b> HTML + PDF with <code>build_artifacts.py</code></li>
+        </ol>
+        <pre>git clone https://github.com/WyattCurtis327/semantic-layer-docs.git
+cd semantic-layer-docs
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python scripts/parse_metric_views.py references/example-metric-views.yaml ./output --layer "Sales Performance"
+python scripts/validate_guide.py ./output/semantic-layer-user-guide.md
+python scripts/build_artifacts.py ./output/semantic-layer-user-guide.md ./output</pre>
+
+        <h2 id="sem-layout">Layout</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>SKILL.md</code></td><td>Agent skill instructions</td></tr>
+            <tr><td><code>scripts/parse_metric_views.py</code></td><td>YAML → draft Markdown</td></tr>
+            <tr><td><code>scripts/validate_guide.py</code></td><td>Structure / content checks</td></tr>
+            <tr><td><code>scripts/build_artifacts.py</code></td><td>Validate + HTML + PDF</td></tr>
+            <tr><td><code>references/</code></td><td>Templates, tone, branding, Open Group structure, sample YAML</td></tr>
+            <tr><td><code>examples/</code></td><td>Worked example guide</td></tr>
+            <tr><td><code>templates/user-guide.html</code></td><td>HTML shell</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="sem-example">Example chapters (Sales Performance sample)</h2>
+        <ol>
+          <li>Understanding the Semantic Layer</li>
+          <li>Key Metrics — Total Revenue, Net Revenue, Order Count</li>
+          <li>Fields and Filters</li>
+          <li>Common Questions</li>
+          <li>Using the Semantic Layer</li>
+          <li>Glossary</li>
+          <li>Getting Help</li>
+        </ol>
+        <p>A local sample guide also sits at <code>Documents\semantic-layer-user-guide\</code>.</p>
+
+        <h2 id="sem-brand">Branding note</h2>
+        <p>Tone and purple accents (#6B2D8F) are inspired by public consumer-friendly product-doc patterns. The repo is <b>not</b> an official loanDepot product and does not claim affiliation. Do not commit real customer or internal Metric View dumps — use illustrative samples only. MIT license.</p>
+      </section>
+
+      <section class="panel" id="panel-nflats" role="tabpanel" aria-labelledby="tab-nflats" hidden data-tab="nflats">
+        <h2 id="ats-what">What it is</h2>
+        <p><a href="https://github.com/WyattCurtis327/nfl-ats">WyattCurtis327/nfl-ats</a> is a public Python package that builds a Tuesday NFL against-the-spread card, refreshes unplayed games on Friday, and grades picks against nflverse scores. Market lines come <b>only</b> from <a href="https://the-odds-api.com/">The Odds API</a> US-book <b>median</b> spreads.</p>
+        <p>Anyone with <code>THE_ODDS_API_KEY</code> can run it. No Databricks, no DuckDB warehouse, no contest lock lines. MIT license. Python 3.11+.</p>
+
+        <h2 id="ats-start">Quick start</h2>
+        <pre>python -m venv .venv
+.venv\Scripts\activate
+pip install -e ".[dev]"
+copy .env.example .env
+nfl-ats card --season 2025 --week 1 --overlays samples/overlays.example.csv
+nfl-ats refresh --season 2025 --week 1 --overlays samples/overlays.example.csv
+nfl-ats grade --season 2025 --week 1
+pytest</pre>
+        <p><code>--season</code> / <code>--week</code> default to the current NFL season and the next unplayed REG week from the nflverse schedule.</p>
+
+        <h2 id="ats-model">Model</h2>
+        <pre>epa_home   = (home_net_epa - away_net_epa) * 65 + HFA
+HFA        = 2.25 at home, 0 on international / neutral sites
+model_home = 0.60 * nfelo_home_margin + 0.40 * epa_home + overlay
+edge       = model_home - market_home_margin
+market_home_margin = -spread_home     # home -3.5 → market margin +3.5
+Play if |edge| >= 1.5 else Lean</pre>
+        <p><b>EPA window</b> (n = completed REG games this season for that team, before the slate week):</p>
+        <ul>
+          <li><code>n &lt; 6</code> — last 12 REG games (may cross seasons)</li>
+          <li><code>n &gt;= 6</code> — 50% last-8 + 50% last-k this season, <code>k = min(17, n)</code></li>
+        </ul>
+        <p>PBP filter: <code>play_type</code> in {pass, run}, <code>qb_kneel == 0</code>, <code>qb_spike == 0</code>, EPA not null. nflverse PBP uses <b>LA</b> for the Rams.</p>
+        <p><b>Overlay</b> (OUT / will-not-play only): QB 4.0, WR1 1.5, LT 1.5. Home OUT subtracts from <code>model_home</code>; away OUT adds. Stack cap 6.0. Skip the QB 4.0 when that team’s nfelo |QB adj| ≥ 50.</p>
+
+        <h2 id="ats-sources">Data sources</h2>
+        <table>
+          <thead><tr><th>Source</th><th>What</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>The Odds API</td><td>US book median home spreads</td><td><code>GET .../v4/sports/americanfootball_nfl/odds?regions=us&amp;markets=spreads</code></td></tr>
+            <tr><td>nflverse</td><td>PBP + schedule</td><td>GitHub releases, cached under <code>./.cache/nflverse/</code></td></tr>
+            <tr><td>nfelo</td><td>Power ratings + model spreads</td><td>Scrape nfeloapp.com; GitHub <code>greerreNFL/nfelo</code> CSVs as backup</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="ats-outputs">Outputs</h2>
+        <table>
+          <thead><tr><th>File</th><th>Command</th></tr></thead>
+          <tbody>
+            <tr><td><code>{season}_week{N}_ats_picks.csv</code></td><td>live card (<code>card</code>, updated by <code>refresh</code>)</td></tr>
+            <tr><td><code>..._ats_picks_tue.csv</code></td><td>Tuesday snapshot</td></tr>
+            <tr><td><code>..._ats_picks_fri.csv</code></td><td>Friday snapshot</td></tr>
+            <tr><td><code>..._ats_picks_grade.csv</code></td><td>graded card</td></tr>
+          </tbody>
+        </table>
+        <p><code>refresh</code> leaves completed games as they were and rewrites only unplayed rows.</p>
+      </section>
+
+      <section class="panel" id="panel-clv" role="tabpanel" aria-labelledby="tab-clv" hidden data-tab="clv">
+        <h2 id="clv-what">What it is</h2>
+        <p><a href="https://github.com/WyattCurtis327/nfl-clv-ledger">WyattCurtis327/nfl-clv-ledger</a> is a public Python CLI + DuckDB ledger for NFL ATS (and optional ML) picks. It logs open / bet / close prices and grades <b>closing-line value (CLV)</b> separately from win-loss. MIT license. No secrets or personal bet history in the tree.</p>
+
+        <h2 id="clv-concepts">Closing-line value</h2>
+        <p><b>CLV</b> asks: did you get a better price than the market’s <b>final</b> number before kickoff? Example: you bet Rams −3; the close ends −4. You beat the close by a point — positive CLV. That is good <em>process</em> even if the Rams lose ATS.</p>
+        <p>Win rate over a small sample is mostly noise. Sustained positive CLV is the honest process metric against a sharp(ish) close.</p>
+
+        <h2 id="clv-novig">No-vig CLV</h2>
+        <p>Books build a margin (vig) into both sides. <b>No-vig CLV</b> strips that tax and compares fair implied probabilities. Units are probability points (<code>no_vig_clv_pp</code>).</p>
+        <ul>
+          <li>Positive <code>no_vig_clv_pp</code> — you bought cheaper probability than the fair close.</li>
+          <li>Break-even at −110 is <b>52.38%</b> implied (reference only, not a target).</li>
+        </ul>
+        <p>This ledger grades no-vig CLV and ATS W-L as <b>separate lines</b>. Never claim “beats the market” from W-L alone.</p>
+
+        <h2 id="clv-fields">Open / bet / close</h2>
+        <table>
+          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Open</td><td>First usable line you saw (or book open) for that side</td></tr>
+            <tr><td>Bet</td><td>Price you actually took (or would have taken)</td></tr>
+            <tr><td>Close</td><td>Last sharp-ish number before kickoff</td></tr>
+          </tbody>
+        </table>
+        <p>If Analytics looked at a slate and took <b>zero</b> plays, log an explicit no-bet row so empty weeks are intentional, not missing data.</p>
+
+        <h2 id="clv-cli">CLI</h2>
+        <pre>nfl-clv init
+nfl-clv add --from-csv samples/week1_sample.csv
+nfl-clv set-close
+nfl-clv grade --week 1
+nfl-clv summary
+nfl-clv export --week 1 -o week1.csv</pre>
+        <p>Default DB: <code>./ledger.duckdb</code>, or <code>NFL_CLV_DB</code>. Schema: <code>season | week | game_id | side | market | book | open_price | bet_price | close_price | timestamps | no_vig_clv_pp | result | notes</code>. Market is <code>ats</code> or <code>ml</code>. Result is win / loss / push / pending / no_bet.</p>
+
+        <h2 id="clv-math">Math (v1)</h2>
+        <p>American → implied: favorite (|a| / (|a| + 100)); dog (100 / (a + 100)). No-vig method is multiplicative: <code>no_vig_a = p_a / (p_a + p_b)</code>. When a row logs only one side’s juice, v1 synthesizes the opposite at −110.</p>
+        <pre>no_vig_clv_pp = 100 × (close_no_vig_prob − bet_no_vig_prob)</pre>
+        <p>Positive means you bought cheaper no-vig probability than the fair close. Process ≠ profitability; never conflate CLV with ATS W-L.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const TOC = {
+      resume: [
+        ["resume-summary", "Professional summary"],
+        ["resume-skills", "Technical skills"],
+        ["resume-experience", "Experience"],
+        ["resume-loandepot", "loanDepot"],
+        ["resume-oakley", "Oakley"],
+        ["resume-guthy", "Guthy-Renker"],
+        ["resume-cleveland", "Cleveland Golf"],
+        ["resume-ameriquest", "Ameriquest"],
+        ["resume-education", "Education"],
+        ["resume-additional", "Additional"]
+      ],
+      github: [
+        ["gh-overview", "Overview"],
+        ["gh-public", "Public repos"]
+      ],
+      semantic: [
+        ["sem-what", "What it is"],
+        ["sem-artifacts", "What you get"],
+        ["sem-why", "Why"],
+        ["sem-workflow", "Workflow"],
+        ["sem-layout", "Layout"],
+        ["sem-example", "Example chapters"],
+        ["sem-brand", "Branding"]
+      ],
+      nflats: [
+        ["ats-what", "What it is"],
+        ["ats-start", "Quick start"],
+        ["ats-model", "Model"],
+        ["ats-sources", "Data sources"],
+        ["ats-outputs", "Outputs"]
+      ],
+      clv: [
+        ["clv-what", "What it is"],
+        ["clv-concepts", "Closing-line value"],
+        ["clv-novig", "No-vig CLV"],
+        ["clv-fields", "Open / bet / close"],
+        ["clv-cli", "CLI"],
+        ["clv-math", "Math"]
+      ]
+    };
+
+    const tabs = document.querySelectorAll(".tabs [role=tab]");
+    const panels = document.querySelectorAll(".panel");
+    const tocList = document.getElementById("toc-list");
+
+    function renderToc(name) {
+      tocList.innerHTML = "";
+      (TOC[name] || []).forEach(([id, label]) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = "#" + id;
+        a.textContent = label;
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          showTab(name, id);
+        });
+        li.appendChild(a);
+        tocList.appendChild(li);
+      });
+    }
+
+    function showTab(name, headingId) {
+      tabs.forEach((t) => {
+        const on = t.dataset.tab === name;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      panels.forEach((p) => {
+        const on = p.dataset.tab === name;
+        p.classList.toggle("active", on);
+        p.hidden = !on;
+      });
+      renderToc(name);
+      history.replaceState(null, "", headingId ? "#" + headingId : "#" + name);
+      if (headingId) {
+        const el = document.getElementById(headingId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    tabs.forEach((t) => {
+      t.addEventListener("click", () => showTab(t.dataset.tab));
+    });
+
+    function bootFromHash() {
+      const hash = (location.hash || "#resume").slice(1);
+      for (const [tab, items] of Object.entries(TOC)) {
+        if (hash === tab) return showTab(tab);
+        if (items.some(([id]) => id === hash)) return showTab(tab, hash);
+      }
+      showTab("resume");
+    }
+
+    window.addEventListener("hashchange", bootFromHash);
+    bootFromHash();
+  </script>
+</body>
+</html>
