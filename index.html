@@ -722,6 +722,11 @@ jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
   </div>
 
   <script>
+    window.goatcounter = { no_onload: true };
+  </script>
+  <script data-goatcounter="https://wyattcurtis327.goatcounter.com/count"
+          async src="https://gc.zgo.at/count.js"></script>
+  <script>
     const TOC = {
       resume: [
         ["resume-summary", "Professional summary"],
@@ -785,6 +790,46 @@ jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
     const tabs = document.querySelectorAll(".tabs [role=tab]");
     const panels = document.querySelectorAll(".panel");
     const tocList = document.getElementById("toc-list");
+    const tabLabel = {};
+    tabs.forEach((t) => { tabLabel[t.dataset.tab] = t.textContent.trim(); });
+    let lastGoatPath = "";
+
+    function goatPath(name, headingId) {
+      return location.pathname + "#" + (headingId || name);
+    }
+
+    function goatTitle(name, headingId) {
+      const tab = tabLabel[name] || name;
+      if (!headingId) return "Wyatt Curtis — " + tab;
+      const hit = (TOC[name] || []).find(([id]) => id === headingId);
+      return "Wyatt Curtis — " + tab + " — " + (hit ? hit[1] : headingId);
+    }
+
+    function trackTabView(name, headingId) {
+      const path = goatPath(name, headingId);
+      if (path === lastGoatPath) return;
+      lastGoatPath = path;
+      const vars = { path: path, title: goatTitle(name, headingId) };
+      const send = function() {
+        if (window.goatcounter && typeof window.goatcounter.count === "function") {
+          window.goatcounter.count(vars);
+        }
+      };
+      if (window.goatcounter && typeof window.goatcounter.count === "function") {
+        send();
+        return;
+      }
+      let n = 0;
+      const t = setInterval(function() {
+        n += 1;
+        if (window.goatcounter && typeof window.goatcounter.count === "function") {
+          clearInterval(t);
+          send();
+        } else if (n > 50) {
+          clearInterval(t);
+        }
+      }, 100);
+    }
 
     function renderToc(name) {
       tocList.innerHTML = "";
@@ -814,6 +859,7 @@ jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
       });
       renderToc(name);
       history.replaceState(null, "", headingId ? "#" + headingId : "#" + name);
+      trackTabView(name, headingId);
       if (headingId) {
         const el = document.getElementById(headingId);
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });

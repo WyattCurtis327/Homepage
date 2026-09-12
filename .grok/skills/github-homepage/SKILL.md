@@ -24,6 +24,7 @@ Maintain Wyatt Curtis’s **public** GitHub Pages site.
 - **Public only.** List and describe only `visibility=public` repos under `WyattCurtis327`. Never name, link, or summarize a private repo.
 - **No secrets.** No API keys, `.env`, bet ledgers, FRED keys, rate-sheet workbooks, or personal vault files.
 - Keep the page a **single** `index.html` (sticky TOC + tabs). Relative URLs only (GitHub project Pages).
+- GoatCounter site `wyattcurtis327.goatcounter.com` counts tab/hash views from `showTab`. Keep that snippet. No other analytics. No secrets.
 - Resume comes from **`resume.md`**, not Google Drive. After editing `resume.md`, rebuild the Resume tab from it.
 - After every content change: commit + push `main`, then sync the Documents copies of `index.html` and `resume.md`.
 
