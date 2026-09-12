@@ -326,7 +326,7 @@
             </tr>
             <tr>
               <td><a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics">mortgage-capital-markets-analytics</a></td>
-              <td>Databricks capital markets reporting mart: gold star schema, metric catalog, pull-through forecast, daily P&amp;L attribution, and a 15-minute desk agent</td>
+              <td>Databricks capital markets reporting mart: gold star, metric catalog, 10k sample lock tape, FRED layer, pull-through / P&amp;L SQL, and a 15-minute desk agent</td>
               <td><a href="#mcma-what">mortgage-capital-markets-analytics</a></td>
             </tr>
             <tr>
@@ -356,10 +356,10 @@
 
       <section class="panel" id="panel-mcma" role="tabpanel" aria-labelledby="tab-mcma" hidden data-tab="mcma">
         <h2 id="mcma-what">What it is</h2>
-        <p><a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics">WyattCurtis327/mortgage-capital-markets-analytics</a> is a public <b>Databricks reporting mart</b> for a fintech / nonbank mortgage capital markets desk that originates to sell. MIT license.</p>
-        <p>It covers how capital markets sits inside origination (pricing, lock, hedge, warehouse, best ex, sale); a gold star schema in Unity Catalog; a controlled metric catalog with additivity rules; Databricks SQL for pull-through, daily position, gain-on-sale, and P&amp;L attribution; annotated desk reporting queries; an incremental nightly MERGE; and a 15-minute decisioning agent.</p>
-        <p>This is a reference implementation, not a trading system. It does not connect to a live LOS, TBA desk, or warehouse bank.</p>
-        <p><b>Price convention:</b> points (<code>100</code> = par). Dollars = <code>UPB × points / 100</code>. Basis points = <code>points × 100</code>. Canonical glossary: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/glossary.md"><code>docs/glossary.md</code></a>. Architecture: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/architecture.md"><code>docs/architecture.md</code></a>. Metrics: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/metrics.md"><code>docs/metrics.md</code></a>.</p>
+        <p><a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics">WyattCurtis327/mortgage-capital-markets-analytics</a> is a public <b>Databricks reporting and analytics pack</b> for a fintech / nonbank capital markets desk that originates to sell. MIT license. Novice walkthrough: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/README.md"><code>docs/README.md</code></a>.</p>
+        <p>Four desk questions: PT-weighted book and hedge policy; why econ moved; realized GOS; whether last night’s PT grid is still usable. The pack includes a gold star in Unity Catalog, a metric catalog with additivity rules, pull-through / attribution / MERGE SQL, annotated desk queries, a 10k sample lock tape, a FRED macro layer, lock-event extensions (renego / soft fallout), and a 15-minute decisioning agent.</p>
+        <p>Not a trading system, LOS, or MISMO exchange. It does not connect to a live TBA desk or warehouse bank.</p>
+        <p><b>Price convention:</b> points (<code>100</code> = par). Dollars = <code>UPB × points / 100</code>. Canonical docs: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/glossary.md">glossary</a>, <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/architecture.md">architecture</a>, <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/metrics.md">metrics</a>, <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/solution-status-and-gaps.md">built vs missing</a>.</p>
 
         <h2 id="mcma-why">Why capital markets sits inside origination</h2>
         <p>Origination manufactures the loan. Capital markets makes it <b>fundable, hedgeable, and saleable</b>. The economic clock starts at <b>rate lock</b>, not at closing. When the borrower locks, the company is long a fixed-rate mortgage that does not yet exist. If market prices fall before sale, that lock is worth less. The desk:</p>
@@ -398,26 +398,34 @@
         <table>
           <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
           <tbody>
+            <tr><td><code>docs/README.md</code></td><td>Novice operations + definitions</td></tr>
             <tr><td><code>docs/architecture.md</code></td><td>UC schemas, jobs, consumers, additivity</td></tr>
             <tr><td><code>docs/metrics.md</code></td><td>Controlled metric catalog</td></tr>
             <tr><td><code>docs/gold-star-schema.md</code></td><td>Fact grains, dimensions, note structure</td></tr>
             <tr><td><code>docs/glossary.md</code></td><td>Canonical glossary</td></tr>
             <tr><td><code>docs/kpis-and-calculations.md</code></td><td>Worked KPI math</td></tr>
             <tr><td><code>docs/agent-15min.md</code></td><td>15-minute agent</td></tr>
+            <tr><td><code>docs/sample-reporting-workflow.md</code></td><td>Load and report the 10k sample tape</td></tr>
+            <tr><td><code>docs/sample-lock-events.md</code></td><td>Events, renego, soft fallout, ex-save L2F</td></tr>
+            <tr><td><code>docs/solution-status-and-gaps.md</code></td><td>Built vs missing</td></tr>
+            <tr><td><code>data/README.md</code></td><td>Sample tape + PT grid (large CSVs gitignored)</td></tr>
             <tr><td><code>sql/05_gold_star_ddl.sql</code></td><td>Gold star DDL (dims, facts, seeds, compat views)</td></tr>
             <tr><td><code>sql/06_eligibility_note_structure.sql</code></td><td>LLPA eligibility + ARM/IO/buydown note structure</td></tr>
+            <tr><td><code>sql/09_lock_event_extensions.sql</code></td><td>Lock-event columns: chain, margin give, soft fallout</td></tr>
             <tr><td><code>sql/01_origination_kpis.sql</code></td><td>Lock as-of, risk, position</td></tr>
             <tr><td><code>sql/02_pullthrough_forecast.sql</code></td><td>Full PT grid + beta + live join</td></tr>
             <tr><td><code>sql/04_daily_merge_job.sql</code></td><td>Incremental MERGE + quality gates</td></tr>
             <tr><td><code>sql/03_pnl_attribution.sql</code></td><td>Daily P&amp;L waterfall</td></tr>
             <tr><td><code>sql/07_reporting_examples.sql</code></td><td>Annotated desk queries against <code>gold_cm</code></td></tr>
+            <tr><td><code>sql/08_fred_macro.sql</code></td><td>FRED series / observations / daily linear fill</td></tr>
             <tr><td><code>databricks/metric_views.yaml</code></td><td>Unity Catalog metric views</td></tr>
             <tr><td><code>databricks/uc_schemas.sql</code></td><td>Schema DDL</td></tr>
+            <tr><td><code>databricks/fred_pull.py</code></td><td>FRED pull + interpolation (same math as <code>08</code>)</td></tr>
             <tr><td><code>databricks/daily_snapshot_job.py</code></td><td>Notebook wrapper (widgets, PT refresh, fail-on-gate)</td></tr>
             <tr><td><code>databricks/workflow.yaml</code></td><td>Suggested Databricks job</td></tr>
           </tbody>
         </table>
-        <p>Dialect is <b>Databricks SQL</b>. Deploy order: <code>05</code> → <code>06</code> → <code>01</code>/<code>02</code> → nightly <code>04</code> → <code>03</code> → reporting examples.</p>
+        <p>Dialect is <b>Databricks SQL</b>. Deploy: <code>uc_schemas</code> → <code>05</code> → <code>06</code> → <code>09</code> → <code>01</code>/<code>02</code> → nightly <code>04</code> → <code>03</code> → <code>08</code> FRED → metric views.</p>
 
         <h2 id="mcma-star">Gold star schema</h2>
         <p>One grain per fact. Conformed dimensions (date, channel, product, purpose, coupon, investor, warehouse, status, ITM, occupancy, property type, note structure). Snapshots freeze the PT used that day. Replay LLPAs from <code>fact_loan_eligibility</code> at event <code>lock</code>, not from current <code>dim_loan</code>. Product card ≠ note: a CONV_30 can be fixed, ARM, IO, or a buydown (<code>dim_note_structure</code>).</p>
@@ -442,17 +450,30 @@
         <p>Note-structure seeds: FIX_30 · FIX_15 · ARM_5_6_SOFR · ARM_7_6_SOFR · FIX_30_IO10 · FIX_30_BD21 · FIX_30_BD10. Hedge coupon may differ from note coupon (<code>hedge_coupon_bucket_key</code> on the lock snapshot).</p>
         <p>One value definition is used everywhere:</p>
         <pre>econ_usd = UPB × PT × (P_now − P_buy) / 100</pre>
-        <p>Open locks use forecast PT. Funded held-for-sale uses <code>PT = 1</code>. Fallen-out and sold loans leave the snapshot.</p>
+        <p>Open locks use forecast PT. Funded held-for-sale uses <code>PT = 1</code>. Fallen-out and sold loans leave the snapshot. Never-locked apps are funnel only — exclude from PTWLV.</p>
+
+        <h2 id="mcma-sample">Sample tape</h2>
+        <p>Working copy (gitignored CSVs): <code>data/sample_lock_pipeline_10k.csv</code>, <code>data/sample_lock_event.csv</code>, plus PT grid <code>data/ref_pullthrough_forecast_sample.csv</code>. Workflow: <a href="https://github.com/WyattCurtis327/mortgage-capital-markets-analytics/blob/main/docs/sample-reporting-workflow.md"><code>docs/sample-reporting-workflow.md</code></a>.</p>
+        <ul>
+          <li>10,000 locks. 80% coin-resolved (~50% realized L2F on resolved). 20% stay open and join the PT grid (<code>status × channel × purpose × product × ITM</code>).</li>
+          <li>Funded PT = 1. Fallout PT = 0. About 65% of funded are sold; the rest HFS.</li>
+          <li>Events (seed 20260913): 3,958 fund, 2,577 sale, 4,042 fallout, 1,321 renegotiate, 79 relock, 160 extend.</li>
+          <li>Soft fallout: D1/D2 = 1,560; D3 (margin give ≤ −0.25 pts) = 1,044. Ex-save L2F <b>37.7%</b> vs as-funded 49.5%. Train the grid on ex-save if the next book will not get the same courtesy.</li>
+          <li>Demo hedge: short = PTWLV + HFS so coverage = 1.0. Attribution still needs a prior-day snapshot.</li>
+        </ul>
+        <p>CSV grain is application × one <code>as_of</code>. Gold wants lock × date history, TBA shorts by coupon, and eligibility at lock / fund / sale. First queries break without a synthesized TBA short inventory.</p>
 
         <h2 id="mcma-deploy">Deploy order</h2>
         <ol>
-          <li><b>Star + eligibility</b> — <code>sql/05_gold_star_ddl.sql</code> then <code>sql/06_eligibility_note_structure.sql</code>.</li>
+          <li><b>Star + eligibility + lock events</b> — <code>sql/05_gold_star_ddl.sql</code>, <code>sql/06_eligibility_note_structure.sql</code>, then <code>sql/09_lock_event_extensions.sql</code> (chain_id, margin give, soft-fallout flags).</li>
           <li><b>KPI views + PT forecast</b> — <code>sql/01_origination_kpis.sql</code>, <code>sql/02_pullthrough_forecast.sql</code>. Empirical PT by status × channel × purpose × product × ITM bucket, shrunk toward a parent when the cell is thin (<code>k = 40</code>), plus a channel beta on price move. Price move <code>P_now − P_lock &gt; 0</code> means the market rallied and the lock is OTM for the borrower — PT should fall; beta is <b>negative</b>. Rebuild the grid nightly from resolved vintages, not the live open book.</li>
           <li><b>Nightly MERGE</b> — <code>sql/04_daily_merge_job.sql</code>. Restate the last 5 days with MERGE + <code>WHEN NOT MATCHED BY SOURCE</code> delete. Freeze older partitions, including the PT used that day. FAIL: zero rows, bad UPB/PT, default-PT share &gt; 20%, PTWLV shock &gt; 35%. Coverage outside 70–120% is a <b>WARN</b>.</li>
           <li><b>Daily P&amp;L attribution</b> — <code>sql/03_pnl_attribution.sql</code>. Splits Δecon into new locks, fallout, fund PT step-up, market, PT revision, renegotiation, UPB change, residual. Offset = <code>−hedge_pnl / (market + pt_revision)</code>. Do not put new locks, fallout, or renego in the denominator.</li>
+          <li><b>FRED macro</b> — <code>sql/08_fred_macro.sql</code> + <code>databricks/fred_pull.py</code>. Observation store plus calendar-daily linear fill (do not extrapolate past last print; <code>is_interpolated</code> flags invented points). Desk view: DGS10, SOFR, PMMS 30, <code>pmms30_minus_dgs10</code>. The pull needs a FRED API key in the job environment — not in git.</li>
           <li><b>Reporting examples</b> — <code>sql/07_reporting_examples.sql</code> against <code>gold_cm</code>.</li>
         </ol>
         <p><b>15-minute agent</b> (<code>docs/agent-15min.md</code>): Watcher every print or TBA jump → Analyst on WARN/FAIL → Reporter desk card. Last night’s PT grid is a prior. The agent drafts tickets (<code>auto_execute: false</code>). It does not refit the model at 10:15 and it does not send TBA orders.</p>
+        <p>Still not in the pack: live LOS/TBA/warehouse connectors, automated CSV→gold load, multi-day snapshots, a real hedge blotter, dashboards/Genie space, pool/AOT/roll facts, MSR OAS book.</p>
 
         <h2 id="mcma-report">Reporting examples</h2>
         <p><code>sql/07_reporting_examples.sql</code> is annotated Databricks SQL against the gold mart — not condensed stubs:</p>
@@ -750,6 +771,7 @@ jupyter notebook notebooks/pricing_scenarios.ipynb</pre>
         ["mcma-arch", "Architecture"],
         ["mcma-map", "Repository map"],
         ["mcma-star", "Gold star schema"],
+        ["mcma-sample", "Sample tape"],
         ["mcma-deploy", "Deploy order"],
         ["mcma-report", "Reporting examples"],
         ["mcma-metrics", "Metric catalog"],
