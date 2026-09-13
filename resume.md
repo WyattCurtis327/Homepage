@@ -1,6 +1,6 @@
 # Wyatt Curtis
 
-714-926-7289 | wyatt.curtis@gmail.com | [github.com/WyattCurtis327](https://github.com/WyattCurtis327)
+wyatt.curtis@gmail.com | [github.com/WyattCurtis327](https://github.com/WyattCurtis327)
 
 Edit this file, then run `/github-homepage` (or ask Grok to refresh the homepage). The Resume tab is rebuilt from here — not from Google Drive.
 
